@@ -1,7 +1,7 @@
 use imgui::{StyleColor, StyleVar};
 use crate::main_window::get_platform;
 
-pub const MAIN_COLOR: [f32; 4] = [0.3, 0.3, 1.0, 1.0];
+pub const MAIN_COLOR: [f32; 4] = [0.3, 0.0, 1.0, 1.0];
 
 pub fn hsl_to_rgb(h: f32, s: f32, l: f32) -> [f32; 4] {
     let a = s * l.min(1.0 - l);

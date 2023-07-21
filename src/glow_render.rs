@@ -120,10 +120,10 @@ fn imgui_init(window: &Window) -> (WinitPlatform, imgui::Context) {
         .fonts()
         //add our Roboto-Regular.ttf font
         .add_font(&[imgui::FontSource::TtfData {
-            data: include_bytes!("../fonts/TASAOrbiterDisplay-Regular.otf"),
+            data: include_bytes!("../fonts/Roboto-Regular.ttf"),
             size_pixels: (16.0 * dpi_factor) as f32, // Scale font size based on DPI factor
             config: Some(imgui::FontConfig {
-                rasterizer_multiply: 1.2,
+                rasterizer_multiply: 1.0,
                 oversample_h: 8,
                 oversample_v: 8,
                 glyph_ranges: imgui::FontGlyphRanges::default(),
