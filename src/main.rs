@@ -1,8 +1,8 @@
-
 mod glow_render;
-mod main_window;
+mod main_gui;
 mod colors;
+mod state;
 
 fn main() {
-    glow_render::main_render();
+    glow_render::init_gui_loop();
 }

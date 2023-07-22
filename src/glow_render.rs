@@ -2,18 +2,21 @@ use std::time::Instant;
 use glow::HasContext;
 use glutin::{event_loop::EventLoop, WindowedContext};
 use imgui_winit_support::WinitPlatform;
-use crate::main_window;
+use crate::main_gui;
+use crate::state::GuiAppState;
 
 const TITLE: &str = "Snooze v0.1.1";
 
 type Window = WindowedContext<glutin::PossiblyCurrent>;
 
-pub fn main_render() {
+pub fn init_gui_loop() {
     // Common setup for creating a winit window and imgui context, not specifc
     // to this renderer at all except that glutin is used to create the window
     // since it will give us access to a GL context
     let (event_loop, window) = create_window();
     let (mut winit_platform, mut imgui_context) = imgui_init(&window);
+
+    let app_state = GuiAppState::new();
 
     // OpenGL context from glow
     let gl = glow_context(&window);
@@ -46,13 +49,11 @@ pub fn main_render() {
 
                 let ui = imgui_context.frame();
 
-                // Call the main UI drawing function, this draws pretty much the entire UI for the app
-                main_window::draw_ui(&ui);
+                main_gui::draw_ui(&ui, &app_state);
 
                 winit_platform.prepare_render(ui, window.window());
                 let draw_data = imgui_context.render();
 
-                // This is the only extra render step to add
                 ig_renderer
                     .render(draw_data)
                     .expect("error rendering imgui");
@@ -120,10 +121,10 @@ fn imgui_init(window: &Window) -> (WinitPlatform, imgui::Context) {
         .fonts()
         //add our Roboto-Regular.ttf font
         .add_font(&[imgui::FontSource::TtfData {
-            data: include_bytes!("../fonts/Roboto-Regular.ttf"),
+            data: include_bytes!("../fonts/TASAOrbiterDisplay-Regular.otf"),
             size_pixels: (16.0 * dpi_factor) as f32, // Scale font size based on DPI factor
             config: Some(imgui::FontConfig {
-                rasterizer_multiply: 1.0,
+                rasterizer_multiply: 1.3,
                 oversample_h: 8,
                 oversample_v: 8,
                 glyph_ranges: imgui::FontGlyphRanges::default(),
