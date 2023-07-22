@@ -88,7 +88,7 @@ fn create_window() -> (EventLoop<()>, Window) {
     let window = glutin::window::WindowBuilder::new()
         .with_title(TITLE)
         .with_transparent(true)
-        .with_inner_size(glutin::dpi::LogicalSize::new(1024, 368));
+        .with_inner_size(glutin::dpi::LogicalSize::new(1280, 720));
     let window = glutin::ContextBuilder::new()
         .with_vsync(true)
         .build_windowed(window, &event_loop)
@@ -108,7 +108,7 @@ fn glow_context(window: &Window) -> glow::Context {
 fn imgui_init(window: &Window) -> (WinitPlatform, imgui::Context) {
     let mut imgui_context = imgui::Context::create();
     imgui_context.set_ini_filename(None);
-
+    imgui_context.io_mut().config_flags |= imgui::ConfigFlags::DOCKING_ENABLE;
     let mut winit_platform = WinitPlatform::init(&mut imgui_context);
     //we want to make sure we're resizing the window properly
     winit_platform.attach_window(

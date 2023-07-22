@@ -23,8 +23,8 @@ pub fn draw_ui(ui: &imgui::Ui, app_state: &GuiAppState) {
         ui.main_menu_bar(|| {
             ui.menu("File", ||
                 {
-                    ui.menu_item("Open workspace");
-                    ui.menu_item("Save request as");
+                    ui.menu_item("Open Workspace");
+                    ui.menu_item("Save Request As");
                     ui.separator();
                     if ui.menu_item("Exit") {
                         std::process::exit(0);
@@ -32,7 +32,7 @@ pub fn draw_ui(ui: &imgui::Ui, app_state: &GuiAppState) {
                 });
             ui.menu("View", ||
                 {
-                    if ui.menu_item("Change theme color") {
+                    if ui.menu_item("Preferences") {
                         //bring up settings window
                         app_state.ui_util_state.lock().unwrap().settings_window_open = true;
                     }
@@ -40,7 +40,6 @@ pub fn draw_ui(ui: &imgui::Ui, app_state: &GuiAppState) {
         });
 
     const MENU_BAR_HEIGHT: f32 = 22.0;
-
     ui.window(" Main window")
         //make the window fill the main window
         .position([0.0, MENU_BAR_HEIGHT], Condition::Always)
