@@ -119,6 +119,7 @@ pub fn init_gui_loop() {
             redraw = false;
         }
         event_loop.run(move |event, _, control_flow| {
+            *control_flow = glutin::event_loop::ControlFlow::Wait;
             match event {
                 glutin::event::Event::NewEvents(_) => {
                     redraw = true;
@@ -180,7 +181,7 @@ fn create_window() -> (EventLoop<()>, Window) {
     let event_loop = glutin::event_loop::EventLoop::new();
     let window = glutin::window::WindowBuilder::new()
         .with_title(TITLE)
-        .with_transparent(true)
+        .with_transparent(false)
         .with_inner_size(glutin::dpi::LogicalSize::new(1280, 720));
     let window = glutin::ContextBuilder::new()
         .with_vsync(true)

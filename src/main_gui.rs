@@ -182,7 +182,7 @@ pub fn draw_ui(ui: &imgui::Ui, app_state: &GuiAppState, ui_util_state: &mut UiUt
                     right.dock_window("Response");
                 },
             );
-            ui.show_demo_window(&mut true);
+            ui.show_metrics_window(&mut true);
             // Create application windows as normal
             ui.window("Request")
                 .size([300.0, 110.0], Condition::FirstUseEver)
