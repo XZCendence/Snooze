@@ -1,9 +1,10 @@
 use std::time::Instant;
 use glow::HasContext;
 use glutin::{event_loop::EventLoop, WindowedContext};
+use imgui::sys;
 use imgui_winit_support::WinitPlatform;
 use crate::main_gui;
-use crate::state::GuiAppState;
+use crate::state::{GuiAppState, UiUtilState};
 
 const TITLE: &str = "Snooze v0.1.1";
 
@@ -17,7 +18,7 @@ pub fn init_gui_loop() {
     let (mut winit_platform, mut imgui_context) = imgui_init(&window);
 
     let app_state = GuiAppState::new();
-
+    let mut ui_util_state = UiUtilState::new();
     // OpenGL context from glow
     let gl = glow_context(&window);
 
@@ -46,10 +47,14 @@ pub fn init_gui_loop() {
             glutin::event::Event::RedrawRequested(_) => {
                 // The renderer assumes you'll be clearing the buffer yourself
                 unsafe { ig_renderer.gl_context().clear(glow::COLOR_BUFFER_BIT) };
-
+                //Apply our themes to everything in the frame
+                unsafe {
+                    let _title_bar = sys::igPushStyleVar_Float(sys::ImGuiStyleVar::from(3), 5.0);
+                }
                 let ui = imgui_context.frame();
+                unsafe { sys::igPopStyleVar(1); }
 
-                main_gui::draw_ui(&ui, &app_state);
+                main_gui::draw_ui(&ui, &app_state, &mut ui_util_state);
 
                 winit_platform.prepare_render(ui, window.window());
                 let draw_data = imgui_context.render();
@@ -90,7 +95,7 @@ fn create_window() -> (EventLoop<()>, Window) {
         .with_transparent(true)
         .with_inner_size(glutin::dpi::LogicalSize::new(1280, 720));
     let window = glutin::ContextBuilder::new()
-        .with_vsync(true)
+        .with_vsync(false)
         .build_windowed(window, &event_loop)
         .expect("could not create window");
     let window = unsafe {

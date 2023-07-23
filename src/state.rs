@@ -3,7 +3,7 @@ use std::sync::{Arc, Mutex};
 pub struct UiUtilState {
     pub settings_window_open: bool,
     pub accent_color: [f32; 4],
-    pub main_window_has_focus: bool,
+    pub log_open: bool,
 }
 
 impl UiUtilState {
@@ -12,7 +12,7 @@ impl UiUtilState {
             settings_window_open: false,
             //our default color is purple
             accent_color: [0.4, 0.0, 1.0, 1.0],
-            main_window_has_focus: true,
+            log_open: false,
         }
     }
 }
@@ -59,7 +59,6 @@ impl ResponseState {
 pub struct GuiAppState {
     pub request_state: Arc<Mutex<RequestState>>,
     pub response_state: Arc<Mutex<ResponseState>>,
-    pub ui_util_state: Arc<Mutex<UiUtilState>>,
 }
 
 impl GuiAppState {
@@ -67,7 +66,6 @@ impl GuiAppState {
         GuiAppState {
             request_state: Arc::new(Mutex::new(RequestState::new())),
             response_state: Arc::new(Mutex::new(ResponseState::new())),
-            ui_util_state: Arc::new(Mutex::new(UiUtilState::new())),
         }
     }
 

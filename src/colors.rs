@@ -15,6 +15,6 @@ pub fn darken_color_bg(color: [f32; 4]) -> [f32; 4] {
         color[0] * 0.1,
         color[1] * 0.1,
         color[2] * 0.1,
-        color[3] * 0.8,
+        color[3] * 0.5,
     ]
 }
