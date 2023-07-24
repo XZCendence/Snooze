@@ -31,10 +31,7 @@ impl DockNode {
     pub fn dock_window(&self, window: &str) {
         let window = imgui::ImString::from(window.to_string());
         unsafe {
-            //push a red color for the title bar just to see if this is the right place to do that
-            let _title_bar = sys::igPushStyleVar_Float(ImGuiStyleVar::from(3), 5.0);
             sys::igDockBuilderDockWindow(window.as_ptr(), self.id);
-            sys::igPopStyleVar(1);
         }
     }
 
@@ -166,9 +163,7 @@ pub fn draw_ui(ui: &imgui::Ui, app_state: &GuiAppState, ui_util_state: &mut UiUt
 
             // Create top-level docking area, needs to be made early (before docked windows)
             let ui_d = UiDocking {};
-            let _title_bar = sys::igPushStyleVar_Float(ImGuiStyleVar::from(3), 5.0);
             let space = ui_d.dockspace("MainDockArea");
-            sys::igPopStyleVar(1);
 
             // Set up splits, docking windows. This can be done conditionally,
             // or calling it every time is also mostly fine
@@ -225,8 +220,8 @@ pub fn draw_ui(ui: &imgui::Ui, app_state: &GuiAppState, ui_util_state: &mut UiUt
         println!("FPS: {}", ui.io().framerate);
     }
     //try to get the refresh rate of the monitor
-    println!("Refresh rate: {}", ui.io().display_framebuffer_scale[0]);
+    //println!("Refresh rate: {}", ui.io().display_framebuffer_scale[0]);
 
 
-    std::thread::sleep(std::time::Duration::from_millis(10));
+    std::thread::sleep(std::time::Duration::from_millis(12));
 }
