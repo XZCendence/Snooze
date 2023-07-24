@@ -182,7 +182,7 @@ pub fn draw_ui(ui: &imgui::Ui, app_state: &GuiAppState, ui_util_state: &mut UiUt
                     right.dock_window("Response");
                 },
             );
-            ui.show_metrics_window(&mut true);
+            //ui.show_metrics_window(&mut true);
             // Create application windows as normal
             ui.window("Request")
                 .size([300.0, 110.0], Condition::FirstUseEver)
@@ -199,6 +199,8 @@ pub fn draw_ui(ui: &imgui::Ui, app_state: &GuiAppState, ui_util_state: &mut UiUt
                     ui.text("Window 2");
                 });
         });
+
+    ui.show_metrics_window(&mut true);
 
     if ui_util_state.settings_window_open {
         ui.window("Settings")
@@ -218,4 +220,13 @@ pub fn draw_ui(ui: &imgui::Ui, app_state: &GuiAppState, ui_util_state: &mut UiUt
                 ui.text("Log");
             });
     }
+    //log the FPS every 100 frames
+    if ui.frame_count() % 100 == 0 {
+        println!("FPS: {}", ui.io().framerate);
+    }
+    //try to get the refresh rate of the monitor
+    println!("Refresh rate: {}", ui.io().display_framebuffer_scale[0]);
+
+
+    std::thread::sleep(std::time::Duration::from_millis(10));
 }

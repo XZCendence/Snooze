@@ -27,7 +27,6 @@ pub fn init_gui_loop() {
         .expect("failed to create renderer");
 
     let mut last_frame = Instant::now();
-    /*
     // Standard winit event loop
     event_loop.run(move |event, _, control_flow| {
         match event {
@@ -86,92 +85,6 @@ pub fn init_gui_loop() {
             }
         }
     });
-     */
-    //that's dumb, we should only redraw when resizing or user input happens
-
-    let mut redraw = false;
-    let mut last_frame = Instant::now();
-    loop {
-        let now = Instant::now();
-        imgui_context
-            .io_mut()
-            .update_delta_time(now.duration_since(last_frame));
-        last_frame = now;
-        if redraw {
-            unsafe { ig_renderer.gl_context().clear(glow::COLOR_BUFFER_BIT) };
-            //Apply our themes to everything in the frame
-            unsafe {
-                let _title_bar = sys::igPushStyleVar_Float(sys::ImGuiStyleVar::from(3), 5.0);
-            }
-            let ui = imgui_context.frame();
-            unsafe { sys::igPopStyleVar(1); }
-
-            main_gui::draw_ui(&ui, &app_state, &mut ui_util_state);
-
-            winit_platform.prepare_render(ui, window.window());
-            let draw_data = imgui_context.render();
-
-            ig_renderer
-                .render(draw_data)
-                .expect("error rendering imgui");
-
-            window.swap_buffers().unwrap();
-            redraw = false;
-        }
-        event_loop.run(move |event, _, control_flow| {
-            *control_flow = glutin::event_loop::ControlFlow::Wait;
-            match event {
-                glutin::event::Event::NewEvents(_) => {
-                    redraw = true;
-                }
-                glutin::event::Event::MainEventsCleared => {
-                    winit_platform
-                        .prepare_frame(imgui_context.io_mut(), window.window())
-                        .unwrap();
-                    window.window().request_redraw();
-                }
-                glutin::event::Event::RedrawRequested(_) => {
-                    // The renderer assumes you'll be clearing the buffer yourself
-                    unsafe { ig_renderer.gl_context().clear(glow::COLOR_BUFFER_BIT) };
-                    //Apply our themes to everything in the frame
-                    unsafe {
-                        let _title_bar = sys::igPushStyleVar_Float(sys::ImGuiStyleVar::from(3), 5.0);
-                    }
-                    let ui = imgui_context.frame();
-
-                    //ui.show_metrics_window(&mut true);
-                    main_gui::draw_ui(&ui, &app_state, &mut ui_util_state);
-                    let draw_data = imgui_context.render();
-
-                    ig_renderer
-                        .render(draw_data)
-                        .expect("error rendering imgui");
-                    unsafe { sys::igPopStyleVar(1); }
-                    window.swap_buffers().unwrap();
-                }
-                glutin::event::Event::WindowEvent {
-                    event: glutin::event::WindowEvent::CloseRequested,
-                    ..
-                } =>
-                    {
-                        *control_flow = glutin::event_loop::ControlFlow::Exit;
-                    }
-                //we want to handle window resizing too
-                glutin::event::Event::WindowEvent {
-                    event: glutin::event::WindowEvent::Resized(size),
-                    ..
-                } => {
-                    window.resize(size);
-                    let logical_size = size.to_logical(window.window().scale_factor());
-                    let logical_size = winit_platform.scale_size_from_winit(window.window(), logical_size);
-                    imgui_context.io_mut().display_size = [logical_size.width as f32, logical_size.height as f32];
-                }
-                event => {
-                    winit_platform.handle_event(imgui_context.io_mut(), window.window(), &event);
-                }
-            }
-        });
-    }
 
 }
 
