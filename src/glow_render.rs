@@ -138,17 +138,15 @@ pub fn init_gui_loop() {
                         let _title_bar = sys::igPushStyleVar_Float(sys::ImGuiStyleVar::from(3), 5.0);
                     }
                     let ui = imgui_context.frame();
-                    unsafe { sys::igPopStyleVar(1); }
 
+                    //ui.show_metrics_window(&mut true);
                     main_gui::draw_ui(&ui, &app_state, &mut ui_util_state);
-
-                    winit_platform.prepare_render(ui, window.window());
                     let draw_data = imgui_context.render();
 
                     ig_renderer
                         .render(draw_data)
                         .expect("error rendering imgui");
-
+                    unsafe { sys::igPopStyleVar(1); }
                     window.swap_buffers().unwrap();
                 }
                 glutin::event::Event::WindowEvent {
@@ -181,7 +179,7 @@ fn create_window() -> (EventLoop<()>, Window) {
     let event_loop = glutin::event_loop::EventLoop::new();
     let window = glutin::window::WindowBuilder::new()
         .with_title(TITLE)
-        .with_transparent(false)
+        .with_transparent(true)
         .with_inner_size(glutin::dpi::LogicalSize::new(1280, 720));
     let window = glutin::ContextBuilder::new()
         .with_vsync(true)
@@ -203,6 +201,7 @@ fn imgui_init(window: &Window) -> (WinitPlatform, imgui::Context) {
     let mut imgui_context = imgui::Context::create();
     imgui_context.set_ini_filename(None);
     imgui_context.io_mut().config_flags |= imgui::ConfigFlags::DOCKING_ENABLE;
+    //p
     let mut winit_platform = WinitPlatform::init(&mut imgui_context);
     //we want to make sure we're resizing the window properly
     winit_platform.attach_window(
