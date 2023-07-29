@@ -46,12 +46,8 @@ pub fn init_gui_loop() {
             glutin::event::Event::RedrawRequested(_) => {
                 // The renderer assumes you'll be clearing the buffer yourself
                 unsafe { ig_renderer.gl_context().clear(glow::COLOR_BUFFER_BIT) };
-                //Apply our themes to everything in the frame
-                unsafe {
-                    let _title_bar = sys::igPushStyleVar_Float(sys::ImGuiStyleVar::from(3), 5.0);
-                }
+
                 let ui = imgui_context.frame();
-                unsafe { sys::igPopStyleVar(1); }
 
                 main_gui::draw_ui(&ui, &app_state, &mut ui_util_state);
 

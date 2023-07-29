@@ -2,7 +2,6 @@ use std::env;
 use std::os::raw::c_char;
 use imgui::{Condition, dear_imgui_version, Direction, StyleColor, StyleVar, sys};
 use imgui::sys::{ImGuiCol, ImGuiStyleVar, ImGuiStyleVar_, ImGuiStyleVar_WindowRounding, ImVec4};
-use crate::colors::{MAIN_COLOR, darken_color_bg};
 use crate::state::{GuiAppState, UiUtilState};
 
 //docking boilerplate
@@ -118,18 +117,6 @@ pub fn draw_ui(ui: &imgui::Ui, app_state: &GuiAppState, ui_util_state: &mut UiUt
             | imgui::WindowFlags::NO_BRING_TO_FRONT_ON_FOCUS | imgui::WindowFlags::NO_NAV_FOCUS
             | imgui::WindowFlags::NO_DOCKING
         ;
-
-    let platform_specific_window_rounding = match get_platform().as_str() {
-        "windows" => 5.0,
-        "macos" => 10.0,
-        _ => 5.0,
-    };
-    let _window_rounding = ui.push_style_var(StyleVar::WindowRounding(platform_specific_window_rounding));
-    // COLORS
-    let _title_bar = ui.push_style_color(StyleColor::TitleBgActive, ui_util_state.accent_color);
-    let _original_window_bg_color = ui.push_style_color(StyleColor::WindowBg, darken_color_bg(ui_util_state.accent_color));
-    let _frame_rounding = ui.push_style_var(StyleVar::FrameRounding(5.0));
-    let _child_rounding = ui.push_style_var(StyleVar::ChildRounding(5.0));
 
         ui.main_menu_bar(|| {
             ui.menu("File", ||
