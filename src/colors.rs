@@ -33,6 +33,15 @@ pub fn push_style_custom(theme: &ImThemeBasicAccentBased){
     }
 }
 
+pub fn pop_style_custom(){
+    unsafe {
+        sys::igPopStyleColor(2);
+        sys::igPopStyleVar(2);
+    }
+}
+
+
+
 pub fn darken_color_bg(color: [f32; 4]) -> [f32; 4] {
     [
         color[0] * 0.1,
