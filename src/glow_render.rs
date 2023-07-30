@@ -3,7 +3,8 @@ use glow::HasContext;
 use glutin::{event_loop::EventLoop, WindowedContext};
 use imgui::sys;
 use imgui_winit_support::WinitPlatform;
-use crate::main_gui;
+use crate::{colors, main_gui};
+use crate::colors::ImThemeBasicAccentBased;
 use crate::state::{GuiAppState, UiUtilState};
 
 const TITLE: &str = "Snooze v0.1.1";
@@ -47,10 +48,19 @@ pub fn init_gui_loop() {
                 // The renderer assumes you'll be clearing the buffer yourself
                 unsafe { ig_renderer.gl_context().clear(glow::COLOR_BUFFER_BIT) };
 
+                //construct a new color theme
+                let mut theme = ImThemeBasicAccentBased{
+                    main_color: [1.0, 0.4, 0.0, 1.0],
+                    background_darken_factor: 0.2,
+                    alpha_coefficient: 0.2,
+                };
+                colors::push_style_custom(&theme);
+
                 let ui = imgui_context.frame();
 
                 main_gui::draw_ui(&ui, &app_state, &mut ui_util_state);
 
+                colors::pop_style_custom();
                 winit_platform.prepare_render(ui, window.window());
                 let draw_data = imgui_context.render();
 

@@ -7,6 +7,7 @@ pub struct ImThemeBasicAccentBased {
     pub alpha_coefficient: f32,
 }
 
+
 pub fn get_platform() -> String {
     let platform = env::consts::OS;
     let platform = platform.to_string();
@@ -26,17 +27,26 @@ pub fn push_style_custom(theme: &ImThemeBasicAccentBased){
         //let _original_window_bg_color = ui.push_style_color(StyleColor::WindowBg, darken_color_bg(ui_util_state.accent_color));
         //let _frame_rounding = ui.push_style_var(StyleVar::FrameRounding(5.0));
         //let _child_rounding = ui.push_style_var(StyleVar::ChildRounding(5.0));
-        sys::igPushStyleVar_Float(sys::ImGuiStyleVar::from(3), platform_specific_window_rounding);
-        sys::igPushStyleVar_Float(sys::ImGuiStyleVar::from(7), platform_specific_window_rounding);
-        sys::igPushStyleColor_Vec4(sys::ImGuiCol::from(11), sys::ImVec4 { x: theme.main_color[0], y: theme.main_color[1], z: theme.main_color[2], w: theme.main_color[3] });
-        sys::igPushStyleColor_Vec4(sys::ImGuiCol::from(2), sys::ImVec4 { x: theme.main_color[0], y: theme.main_color[1], z: theme.main_color[2], w: theme.main_color[3] });
+        let _window_rounding = sys::igPushStyleVar_Float(sys::ImGuiStyleVar::from(3), platform_specific_window_rounding);
+        let _child_rounding = sys::igPushStyleVar_Float(sys::ImGuiStyleVar::from(7), platform_specific_window_rounding);
+        //frame rounding
+        let _frame_rounding = sys::igPushStyleVar_Float(sys::ImGuiStyleVar::from(12), platform_specific_window_rounding);
+        let _title_bg_active = sys::igPushStyleColor_Vec4(sys::ImGuiCol::from(11), sys::ImVec4 { x: theme.main_color[0], y: theme.main_color[1], z: theme.main_color[2], w: theme.main_color[3] });
+        let darkened_bg = [
+            theme.main_color[0] * theme.background_darken_factor,
+            theme.main_color[1] * theme.background_darken_factor,
+            theme.main_color[2] * theme.background_darken_factor,
+            theme.main_color[3] * theme.alpha_coefficient,
+        ];
+        let darkened_bg_imvec4 = sys::ImVec4 { x: darkened_bg[0], y: darkened_bg[1], z: darkened_bg[2], w: darkened_bg[3] };
+        let _window_bg = sys::igPushStyleColor_Vec4(sys::ImGuiCol::from(2), darkened_bg_imvec4);
     }
 }
 
 pub fn pop_style_custom(){
     unsafe {
         sys::igPopStyleColor(2);
-        sys::igPopStyleVar(2);
+        sys::igPopStyleVar(3);
     }
 }
 
