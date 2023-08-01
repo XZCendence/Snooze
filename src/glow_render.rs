@@ -27,6 +27,12 @@ pub fn init_gui_loop() {
     let mut ig_renderer = imgui_glow_renderer::AutoRenderer::initialize(gl, &mut imgui_context)
         .expect("failed to create renderer");
 
+    unsafe {
+        ig_renderer.gl_context().enable(glow::BLEND);
+        ig_renderer.gl_context().blend_equation(glow::FUNC_ADD);
+        ig_renderer.gl_context().blend_func_separate(glow::SRC_ALPHA, glow::ONE_MINUS_SRC_ALPHA, glow::ONE, glow::ONE_MINUS_SRC_ALPHA);
+    }
+
     let mut last_frame = Instant::now();
     // Standard winit event loop
     event_loop.run(move |event, _, control_flow| {
@@ -46,17 +52,21 @@ pub fn init_gui_loop() {
             }
             glutin::event::Event::RedrawRequested(_) => {
                 // The renderer assumes you'll be clearing the buffer yourself
-                unsafe { ig_renderer.gl_context().clear(glow::COLOR_BUFFER_BIT) };
+                unsafe {
+                    //clear alpha channel to 0
+                    ig_renderer.gl_context().clear_color(0.0, 0.0, 0.0, 0.0);
+                    ig_renderer.gl_context().clear(glow::COLOR_BUFFER_BIT | glow::DEPTH_BUFFER_BIT);
+                };
 
                 //construct a new color theme
-                let mut theme = ImThemeBasicAccentBased{
-                    main_color: [1.0, 0.4, 0.0, 1.0],
+                let theme = ImThemeBasicAccentBased{
+                    main_color: ui_util_state.accent_color,
                     background_darken_factor: 0.2,
-                    alpha_coefficient: 0.2,
+                    alpha_coefficient: 0.4,
                 };
                 colors::push_style_custom(&theme);
 
-                let ui = imgui_context.frame();
+                let ui = imgui_context.new_frame();
 
                 main_gui::draw_ui(&ui, &app_state, &mut ui_util_state);
 
@@ -77,6 +87,7 @@ pub fn init_gui_loop() {
                 *control_flow = glutin::event_loop::ControlFlow::Exit;
             }
             //we want to handle window resizing too
+
             glutin::event::Event::WindowEvent {
                 event: glutin::event::WindowEvent::Resized(size),
                 ..
@@ -101,7 +112,7 @@ fn create_window() -> (EventLoop<()>, Window) {
         .with_transparent(true)
         .with_inner_size(glutin::dpi::LogicalSize::new(1280, 720));
     let window = glutin::ContextBuilder::new()
-        .with_vsync(true)
+        .with_vsync(false)
         .build_windowed(window, &event_loop)
         .expect("could not create window");
     let window = unsafe {

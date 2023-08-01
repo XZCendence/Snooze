@@ -182,7 +182,7 @@ pub fn draw_ui(ui: &imgui::Ui, app_state: &GuiAppState, ui_util_state: &mut UiUt
                 });
         });
 
-    ui.show_metrics_window(&mut true);
+    //ui.show_demo_window(&mut true);
 
     if ui_util_state.settings_window_open {
         ui.window("Settings")
