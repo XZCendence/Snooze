@@ -155,27 +155,26 @@ pub fn draw_ui(ui: &imgui::Ui, app_state: &GuiAppState, ui_util_state: &mut UiUt
                     options_h.pop();
                     options_a.pop();
 
+                    ui.new_line();
                     /// # Main request editor tabs
-                    /// This is where the user can edit the headers, body, auth, query, and other parts of the request other than the URL and method
-
 
                     let tab_bar = ui.tab_bar("Request Editor Tabs");
-                    TabItem::new(("Headers"))
+                    TabItem::new("Headers")
                         .build(&ui, || {
                             ui.text("Headers");
                         });
 
-                    TabItem::new(("Body"))
+                    TabItem::new("Body")
                         .build(&ui, || {
                             ui.text("Body");
                         });
 
-                    TabItem::new(("Auth"))
+                    TabItem::new("Auth")
                         .build(&ui, || {
                             ui.text("Auth");
                         });
 
-                    TabItem::new(("Query"))
+                    TabItem::new("Query")
                         .build(&ui, || {
                             ui.text("Query");
                         });
@@ -184,7 +183,7 @@ pub fn draw_ui(ui: &imgui::Ui, app_state: &GuiAppState, ui_util_state: &mut UiUt
             ui.window("Response")
                 .size([300.0, 110.0], Condition::FirstUseEver)
                 .build(|| {
-                    ui.text("Window 2");
+                    ui.text("Select a verb to send a request.");
                 });
         });
 
@@ -193,7 +192,7 @@ pub fn draw_ui(ui: &imgui::Ui, app_state: &GuiAppState, ui_util_state: &mut UiUt
     if ui_util_state.settings_window_open {
         ui.window("Settings")
             .opened(&mut ui_util_state.settings_window_open)
-            .size([300.0, 200.0], Condition::FirstUseEver)
+            .size([300.0, 100.0], Condition::FirstUseEver)
             .build(|| {
                 ui.text("Change theme color");
                 ui.color_edit4("Accent color", &mut ui_util_state.accent_color);
