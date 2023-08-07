@@ -1,7 +1,6 @@
 use std::time::Instant;
 use glow::HasContext;
 use glutin::{event_loop::EventLoop, WindowedContext};
-use imgui::sys;
 use imgui_winit_support::WinitPlatform;
 use crate::{colors, main_gui};
 use crate::colors::ImThemeBasicAccentBased;
@@ -61,8 +60,8 @@ pub fn init_gui_loop() {
                 //construct a new color theme
                 let theme = ImThemeBasicAccentBased{
                     main_color: ui_util_state.accent_color,
-                    background_darken_factor: 0.2,
-                    alpha_coefficient: 0.4,
+                    background_darken_factor: 0.1,
+                    alpha_coefficient: 0.5,
                 };
                 colors::push_style_custom(&theme);
 

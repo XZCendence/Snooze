@@ -64,6 +64,14 @@ pub fn push_style_custom(theme: &ImThemeBasicAccentBased){
     }
 }
 
+//safe function to quicklu push a button color
+
+pub fn pop_button_color(){
+    unsafe {
+        sys::igPopStyleColor(3);
+    }
+}
+
 pub fn pop_style_custom(){
     unsafe {
         sys::igPopStyleColor(10);

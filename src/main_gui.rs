@@ -1,112 +1,6 @@
-use std::env;
-use std::os::raw::c_char;
-use imgui::{Condition, dear_imgui_version, Direction, StyleColor, StyleVar, sys};
-use imgui::sys::{ImGuiCol, ImGuiStyleVar, ImGuiStyleVar_, ImGuiStyleVar_WindowRounding, ImVec4};
+use imgui::{Condition, TabItem};
+use crate::docking::UiDocking;
 use crate::state::{GuiAppState, UiUtilState};
-
-//docking boilerplate
-
-pub struct DockNode {
-    id: u32,
-}
-
-impl DockNode {
-    fn new(id: u32) -> Self {
-        Self { id }
-    }
-
-    pub fn is_split(&self) -> bool {
-        unsafe {
-            let node = sys::igDockBuilderGetNode(self.id);
-            if node.is_null() {
-                false
-            } else {
-                sys::ImGuiDockNode_IsSplitNode(node)
-            }
-        }
-    }
-    /// Dock window into this dockspace
-    #[doc(alias = "DockBuilder::DockWindow")]
-    pub fn dock_window(&self, window: &str) {
-        let window = imgui::ImString::from(window.to_string());
-        unsafe {
-            sys::igDockBuilderDockWindow(window.as_ptr(), self.id);
-        }
-    }
-
-    #[doc(alias = "DockBuilder::SplitNode")]
-    pub fn split<D, O>(&self, split_dir: Direction, size_ratio: f32, dir: D, opposite_dir: O)
-        where
-            D: FnOnce(DockNode),
-            O: FnOnce(DockNode),
-    {
-        if self.is_split() {
-            // Can't split an already split node (need to split the
-            // node within)
-            return;
-        }
-
-        let mut out_id_at_dir: sys::ImGuiID = 0;
-        let mut out_id_at_opposite_dir: sys::ImGuiID = 0;
-        unsafe {
-            sys::igDockBuilderSplitNode(
-                self.id,
-                split_dir as i32,
-                size_ratio,
-                &mut out_id_at_dir,
-                &mut out_id_at_opposite_dir,
-            );
-        }
-
-        dir(DockNode::new(out_id_at_dir));
-        opposite_dir(DockNode::new(out_id_at_opposite_dir));
-    }
-}
-
-/// # Docking
-
-pub struct UiDocking {}
-
-impl UiDocking {
-    #[doc(alias = "IsWindowDocked")]
-    pub fn is_window_docked(&self) -> bool {
-        unsafe { sys::igIsWindowDocked() }
-    }
-    /// Create dockspace with given label. Returns a handle to the
-    /// dockspace which can be used to, say, programatically split or
-    /// dock windows into it
-    #[doc(alias = "DockSpace")]
-    pub fn dockspace(&self, label: &str) -> DockNode {
-        let label = imgui::ImString::from(label.to_string());
-        unsafe {
-            let id = sys::igGetID_Str(label.as_ptr() as *const c_char);
-            sys::igDockSpace(
-                id,
-                [0.0, 0.0].into(),
-                0,
-                ::std::ptr::null::<sys::ImGuiWindowClass>(),
-            );
-            DockNode { id }
-        }
-    }
-
-    #[doc(alias = "DockSpaceOverViewport")]
-    pub fn dockspace_over_viewport(&self) {
-        unsafe {
-            sys::igDockSpaceOverViewport(
-                sys::igGetMainViewport(),
-                0,
-                ::std::ptr::null::<sys::ImGuiWindowClass>(),
-            );
-        }
-    }
-}
-
-pub fn get_platform() -> String {
-    let platform = env::consts::OS;
-    let platform = platform.to_string();
-    platform
-}
 
 // Draw function (called every frame, so don't expect anything here to persist)
 pub fn draw_ui(ui: &imgui::Ui, app_state: &GuiAppState, ui_util_state: &mut UiUtilState) {
@@ -131,11 +25,9 @@ pub fn draw_ui(ui: &imgui::Ui, app_state: &GuiAppState, ui_util_state: &mut UiUt
             ui.menu("Window", ||
                 {
                     if ui.menu_item("Preferences") {
-                        //bring up settings window
                         ui_util_state.settings_window_open = true;
                     }
                     if ui.menu_item("Output Log") {
-                        //bring up log window
                         ui_util_state.log_open = true;
                     }
                 });
@@ -164,15 +56,129 @@ pub fn draw_ui(ui: &imgui::Ui, app_state: &GuiAppState, ui_util_state: &mut UiUt
                     right.dock_window("Response");
                 },
             );
-            //ui.show_metrics_window(&mut true);
-            // Create application windows as normal
+            //ui.show_demo_window(&mut true);
+
+            /// # Request Window
+            /// This window contains the request editor and the saved requests list
             ui.window("Request")
                 .size([300.0, 110.0], Condition::FirstUseEver)
                 .build(|| {
-                    ui.input_text("URL", &mut app_state.request_state.lock().unwrap().url)
+                    ui.text("Saved Requests");
+                    //add a child frame with all our saved requests
+                    ui.columns(2, "lr_pane", true);
+                    ui.set_current_column_width(190.0);
+                    ui.child_window("Saved Requests")
+                        .size([0.0, 0.0])
+                        .border(true)
+                        .draw_background(true)
+                        .build(|| {
+
+                            //for loop to add 10 selectable items
+                            for i in 0..100 {
+                                let name = format!("Request {}", i + 1);
+                                ui.selectable(name.as_str());
+
+                            }
+                        } );
+                    ui.next_column();
+                    ui.input_text("URL", &mut app_state.get_request_state_mut().url)
                         .build();
-                    //button for GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD
-                    //each is a different color
+
+                    /// # HTTP Method Buttons
+                    let get_n = ui.push_style_color(imgui::StyleColor::Button, [0.3, 0.8, 0.3, 0.7]); //normal
+                    let get_h = ui.push_style_color(imgui::StyleColor::ButtonHovered, [0.3, 1.0, 0.3, 0.7]); //hovered (slightly lighter)
+                    let get_a = ui.push_style_color(imgui::StyleColor::ButtonActive, [0.3, 0.8, 0.3, 0.7]); //active (slightly darker)
+                    if ui.button("GET") {
+                        println!("GET");
+                    }
+                    get_n.pop();
+                    get_h.pop();
+                    get_a.pop();
+                    let post_n = ui.push_style_color(imgui::StyleColor::Button, [0.3, 0.2, 0.8, 0.7]); //normal
+                    let post_h = ui.push_style_color(imgui::StyleColor::ButtonHovered, [0.4, 0.2, 1.0, 0.7]); //hovered (slightly lighter)
+                    let post_a = ui.push_style_color(imgui::StyleColor::ButtonActive, [0.3, 0.2, 0.8, 0.7]); //active (slightly darker)
+                    ui.same_line();
+                    if ui.button("POST") {
+                        println!("POST");
+                    }
+                    post_n.pop();
+                    post_h.pop();
+                    post_a.pop();
+                    ui.same_line();
+                    let put_n = ui.push_style_color(imgui::StyleColor::Button, [0.8, 0.8, 0.2, 0.7]); //normal
+                    let put_h = ui.push_style_color(imgui::StyleColor::ButtonHovered, [1.0, 1.0, 0.2, 0.7]); //hovered (slightly lighter)
+                    let put_a = ui.push_style_color(imgui::StyleColor::ButtonActive, [0.8, 0.8, 0.2, 0.7]); //active (slightly darker)
+                    if ui.button("PUT") {
+                        println!("PUT");
+                    }
+                    put_n.pop();
+                    put_h.pop();
+                    put_a.pop();
+                    ui.same_line();
+                    let delete_n = ui.push_style_color(imgui::StyleColor::Button, [0.8, 0.2, 0.2, 0.7]); //normal
+                    let delete_h = ui.push_style_color(imgui::StyleColor::ButtonHovered, [1.0, 0.2, 0.2, 0.7]); //hovered (slightly lighter)
+                    let delete_a = ui.push_style_color(imgui::StyleColor::ButtonActive, [0.8, 0.2, 0.2, 0.7]); //active (slightly darker)
+                    if ui.button("DELETE") {
+                        println!("DELETE");
+                    }
+                    delete_n.pop();
+                    delete_h.pop();
+                    delete_a.pop();
+                    ui.same_line();
+                    let patch_n = ui.push_style_color(imgui::StyleColor::Button, [0.2, 0.8, 0.8, 0.7]); //normal
+                    let patch_h = ui.push_style_color(imgui::StyleColor::ButtonHovered, [0.2, 1.0, 1.0, 0.7]); //hovered (slightly lighter)
+                    let patch_a = ui.push_style_color(imgui::StyleColor::ButtonActive, [0.2, 0.8, 0.8, 0.7]); //active (slightly darker)
+                    if ui.button("PATCH") {
+                        println!("PATCH");
+                    }
+                    patch_n.pop();
+                    patch_h.pop();
+                    patch_a.pop();
+                    ui.same_line();
+                    let head_n = ui.push_style_color(imgui::StyleColor::Button, [0.8, 0.2, 0.8, 0.7]); //normal
+                    let head_h = ui.push_style_color(imgui::StyleColor::ButtonHovered, [1.0, 0.2, 1.0, 0.7]); //hovered (slightly lighter)
+                    let head_a = ui.push_style_color(imgui::StyleColor::ButtonActive, [0.8, 0.2, 0.8, 0.7]); //active (slightly darker)
+                    if ui.button("HEAD") {
+                        println!("HEAD");
+                    }
+                    head_n.pop();
+                    head_h.pop();
+                    head_a.pop();
+                    ui.same_line();
+                    let options_n = ui.push_style_color(imgui::StyleColor::Button, [0.8, 0.3, 0.2, 0.7]); //normal
+                    let options_h = ui.push_style_color(imgui::StyleColor::ButtonHovered, [1.0, 0.4, 0.2, 0.7]); //hovered (slightly lighter)
+                    let options_a = ui.push_style_color(imgui::StyleColor::ButtonActive, [0.8, 0.3, 0.2, 0.7]); //active (slightly darker)
+                    if ui.button("OPTIONS") {
+                        println!("OPTIONS");
+                    }
+                    options_n.pop();
+                    options_h.pop();
+                    options_a.pop();
+
+                    /// # Main request editor tabs
+                    /// This is where the user can edit the headers, body, auth, query, and other parts of the request other than the URL and method
+
+
+                    let tab_bar = ui.tab_bar("Request Editor Tabs");
+                    TabItem::new(("Headers"))
+                        .build(&ui, || {
+                            ui.text("Headers");
+                        });
+
+                    TabItem::new(("Body"))
+                        .build(&ui, || {
+                            ui.text("Body");
+                        });
+
+                    TabItem::new(("Auth"))
+                        .build(&ui, || {
+                            ui.text("Auth");
+                        });
+
+                    TabItem::new(("Query"))
+                        .build(&ui, || {
+                            ui.text("Query");
+                        });
 
                 });
             ui.window("Response")
@@ -206,9 +212,6 @@ pub fn draw_ui(ui: &imgui::Ui, app_state: &GuiAppState, ui_util_state: &mut UiUt
     if ui.frame_count() % 100 == 0 {
         println!("FPS: {}", ui.io().framerate);
     }
-    //try to get the refresh rate of the monitor
-    //println!("Refresh rate: {}", ui.io().display_framebuffer_scale[0]);
-
 
     std::thread::sleep(std::time::Duration::from_millis(12));
 }

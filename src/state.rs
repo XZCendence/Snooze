@@ -11,7 +11,7 @@ impl UiUtilState {
         UiUtilState {
             settings_window_open: false,
             //our default color is purple
-            accent_color: [0.4, 0.0, 1.0, 1.0],
+            accent_color: [1.0, 0.0, 1.0, 1.0],
             log_open: false,
         }
     }
@@ -69,11 +69,11 @@ impl GuiAppState {
         }
     }
 
-    pub fn get_request_state(&self) -> Arc<Mutex<RequestState>> {
-        self.request_state.clone()
+    pub fn get_request_state_mut(&self) -> std::sync::MutexGuard<RequestState> {
+        self.request_state.lock().unwrap()
     }
 
-    pub fn get_response_state(&self) -> Arc<Mutex<ResponseState>> {
-        self.response_state.clone()
+    pub fn get_response_state_mut(&self) -> std::sync::MutexGuard<ResponseState> {
+        self.response_state.lock().unwrap()
     }
 }
