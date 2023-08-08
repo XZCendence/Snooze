@@ -4,6 +4,10 @@ pub struct UiUtilState {
     pub settings_window_open: bool,
     pub accent_color: [f32; 4],
     pub log_open: bool,
+    pub request_1_open: bool,
+    pub request_2_open: bool,
+    pub request_3_open: bool,
+    pub request_4_open: bool,
 }
 
 impl UiUtilState {
@@ -13,6 +17,10 @@ impl UiUtilState {
             //our default color is purple
             accent_color: [1.0, 0.0, 1.0, 1.0],
             log_open: false,
+            request_1_open: true,
+            request_2_open: false,
+            request_3_open: false,
+            request_4_open: false,
         }
     }
 }

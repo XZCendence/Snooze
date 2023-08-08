@@ -1,5 +1,5 @@
 mod glow_render;
-mod request_window;
+mod gui;
 mod colors;
 mod state;
 mod docking;

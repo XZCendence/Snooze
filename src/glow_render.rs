@@ -2,7 +2,7 @@ use std::time::Instant;
 use glow::HasContext;
 use glutin::{event_loop::EventLoop, WindowedContext};
 use imgui_winit_support::WinitPlatform;
-use crate::{colors, request_window};
+use crate::{colors, gui};
 use crate::colors::ImThemeBasicAccentBased;
 use crate::state::{GuiAppState, UiUtilState};
 
@@ -71,7 +71,7 @@ pub fn init_gui_loop() {
 
                 let ui = imgui_context.new_frame();
 
-                request_window::draw_ui(&ui, &app_state, &mut ui_util_state);
+                gui::draw_ui(&ui, &mut ui_util_state, &app_state_r1, &app_state_r2, &app_state_r3, &app_state_r4);
 
                 colors::pop_style_custom();
                 winit_platform.prepare_render(ui, window.window());
