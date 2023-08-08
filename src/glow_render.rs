@@ -2,7 +2,7 @@ use std::time::Instant;
 use glow::HasContext;
 use glutin::{event_loop::EventLoop, WindowedContext};
 use imgui_winit_support::WinitPlatform;
-use crate::{colors, main_gui};
+use crate::{colors, request_window};
 use crate::colors::ImThemeBasicAccentBased;
 use crate::state::{GuiAppState, UiUtilState};
 
@@ -17,7 +17,11 @@ pub fn init_gui_loop() {
     let (event_loop, window) = create_window();
     let (mut winit_platform, mut imgui_context) = imgui_init(&window);
 
-    let app_state = GuiAppState::new();
+    let app_state_r1 = GuiAppState::new();
+    let app_state_r2 = GuiAppState::new();
+    let app_state_r3 = GuiAppState::new();
+    let app_state_r4 = GuiAppState::new();
+
     let mut ui_util_state = UiUtilState::new();
     // OpenGL context from glow
     let gl = glow_context(&window);
@@ -67,7 +71,7 @@ pub fn init_gui_loop() {
 
                 let ui = imgui_context.new_frame();
 
-                main_gui::draw_ui(&ui, &app_state, &mut ui_util_state);
+                request_window::draw_ui(&ui, &app_state, &mut ui_util_state);
 
                 colors::pop_style_custom();
                 winit_platform.prepare_render(ui, window.window());

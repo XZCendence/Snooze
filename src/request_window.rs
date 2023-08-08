@@ -169,11 +169,6 @@ pub fn draw_ui(ui: &imgui::Ui, app_state: &GuiAppState, ui_util_state: &mut UiUt
                             ui.text("Body");
                         });
 
-                    TabItem::new("Auth")
-                        .build(&ui, || {
-                            ui.text("Auth");
-                        });
-
                     TabItem::new("Query")
                         .build(&ui, || {
                             ui.text("Query");
