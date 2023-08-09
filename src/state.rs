@@ -4,7 +4,6 @@ pub struct UiUtilState {
     pub settings_window_open: bool,
     pub accent_color: [f32; 4],
     pub log_open: bool,
-    pub request_1_open: bool,
     pub request_2_open: bool,
     pub request_3_open: bool,
     pub request_4_open: bool,
@@ -15,12 +14,12 @@ impl UiUtilState {
         UiUtilState {
             settings_window_open: false,
             //our default color is purple
-            accent_color: [1.0, 0.0, 1.0, 1.0],
+            accent_color: [0.8, 0.4, 1.0, 1.0],
             log_open: false,
-            request_1_open: true,
             request_2_open: false,
             request_3_open: false,
             request_4_open: false,
+
         }
     }
 }
@@ -84,4 +83,9 @@ impl GuiAppState {
     pub fn get_response_state_mut(&self) -> std::sync::MutexGuard<ResponseState> {
         self.response_state.lock().unwrap()
     }
+}
+
+pub struct DualFontData {
+    pub font_alpha: imgui::FontId,
+    pub font_beta: imgui::FontId,
 }

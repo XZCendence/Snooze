@@ -24,8 +24,11 @@ pub fn push_style_custom(theme: &ImThemeBasicAccentBased){
         };
         let _window_rounding = sys::igPushStyleVar_Float(sys::ImGuiStyleVar::from(3), platform_specific_window_rounding);
         let _child_rounding = sys::igPushStyleVar_Float(sys::ImGuiStyleVar::from(7), platform_specific_window_rounding);
-        //frame rounding
         let _frame_rounding = sys::igPushStyleVar_Float(sys::ImGuiStyleVar::from(12), 5.0);
+        let _frame_border_size = sys::igPushStyleVar_Float(sys::ImGuiStyleVar::from(13), 1.0);
+        let _frame_padding = sys::igPushStyleVar_Vec2(sys::ImGuiStyleVar::from(11), sys::ImVec2 { x: 6.0, y: 4.0 });
+
+        // Colors
         let darkened_title_bg = [
             theme.main_color[0] * 0.6,
             theme.main_color[1] * 0.6,
@@ -58,7 +61,7 @@ pub fn push_style_custom(theme: &ImThemeBasicAccentBased){
         let _frame_bg = sys::igPushStyleColor_Vec4(sys::ImGuiCol::from(7),
                                                    sys::ImVec4 { x: theme.main_color[0] * 0.6, y: theme.main_color[1] * 0.6, z: theme.main_color[2] * 0.6, w: theme.main_color[3] * 0.5});
         let _border = sys::igPushStyleColor_Vec4(sys::ImGuiCol::from(5),
-                                                 sys::ImVec4 { x: theme.main_color[0], y: theme.main_color[1], z: theme.main_color[2], w: theme.main_color[3] });
+                                                 sys::ImVec4 { x: theme.main_color[0] * 0.7, y: theme.main_color[1] * 0.7, z: theme.main_color[2] * 0.7, w: theme.main_color[3] * 0.7 });
         let _menu_bar_bg = sys::igPushStyleColor_Vec4(sys::ImGuiCol::from(13),
                                                       sys::ImVec4 { x: theme.main_color[0] * 0.4, y: theme.main_color[1] * 0.4, z: theme.main_color[2] * 0.4, w: theme.main_color[3]});
     }
@@ -75,6 +78,6 @@ pub fn pop_button_color(){
 pub fn pop_style_custom(){
     unsafe {
         sys::igPopStyleColor(10);
-        sys::igPopStyleVar(3);
+        sys::igPopStyleVar(5);
     }
 }

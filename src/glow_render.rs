@@ -2,9 +2,9 @@ use std::time::Instant;
 use glow::HasContext;
 use glutin::{event_loop::EventLoop, WindowedContext};
 use imgui_winit_support::WinitPlatform;
-use crate::{colors, gui};
-use crate::colors::ImThemeBasicAccentBased;
-use crate::state::{GuiAppState, UiUtilState};
+use crate::{theme, gui};
+use crate::theme::ImThemeBasicAccentBased;
+use crate::state::{GuiAppState, UiUtilState, DualFontData};
 
 const TITLE: &str = "Snooze v0.1.1";
 
@@ -15,7 +15,7 @@ pub fn init_gui_loop() {
     // to this renderer at all except that glutin is used to create the window
     // since it will give us access to a GL context
     let (event_loop, window) = create_window();
-    let (mut winit_platform, mut imgui_context) = imgui_init(&window);
+    let (mut winit_platform, mut imgui_context, mut dual_font_data) = imgui_init(&window);
 
     let app_state_r1 = GuiAppState::new();
     let app_state_r2 = GuiAppState::new();
@@ -67,13 +67,21 @@ pub fn init_gui_loop() {
                     background_darken_factor: 0.1,
                     alpha_coefficient: 0.5,
                 };
-                colors::push_style_custom(&theme);
+                theme::push_style_custom(&theme);
 
                 let ui = imgui_context.new_frame();
 
-                gui::draw_ui(&ui, &mut ui_util_state, &app_state_r1, &app_state_r2, &app_state_r3, &app_state_r4);
+                gui::draw_ui(
+                    &ui,
+                    &mut ui_util_state,
+                    &app_state_r1,
+                    &app_state_r2,
+                    &app_state_r3,
+                    &app_state_r4,
+                    &dual_font_data
+                );
 
-                colors::pop_style_custom();
+                theme::pop_style_custom();
                 winit_platform.prepare_render(ui, window.window());
                 let draw_data = imgui_context.render();
 
@@ -130,7 +138,7 @@ fn glow_context(window: &Window) -> glow::Context {
     unsafe { glow::Context::from_loader_function(|s| window.get_proc_address(s).cast()) }
 }
 
-fn imgui_init(window: &Window) -> (WinitPlatform, imgui::Context) {
+fn imgui_init(window: &Window) -> (WinitPlatform, imgui::Context, DualFontData){
     let mut imgui_context = imgui::Context::create();
     imgui_context.set_ini_filename(None);
     imgui_context.io_mut().config_flags |= imgui::ConfigFlags::DOCKING_ENABLE;
@@ -143,22 +151,39 @@ fn imgui_init(window: &Window) -> (WinitPlatform, imgui::Context) {
         imgui_winit_support::HiDpiMode::Default,
     );
     let dpi_factor = winit_platform.hidpi_factor();
-    imgui_context
+
+    let dual_font_data = DualFontData {
+        font_alpha: imgui_context
+            .fonts()
+            //add our Roboto-Regular.ttf font
+            .add_font(&[imgui::FontSource::TtfData {
+                data: include_bytes!("../fonts/TASAOrbiterDisplay-Regular.otf"),
+                size_pixels: (16.5 * dpi_factor) as f32, // Scale font size based on DPI factor
+                config: Some(imgui::FontConfig {
+                    rasterizer_multiply: 1.3,
+                    oversample_h: 8,
+                    oversample_v: 8,
+                    glyph_ranges: imgui::FontGlyphRanges::default(),
+                    ..imgui::FontConfig::default()
+                }),
+            }]),
+        font_beta: imgui_context
         .fonts()
-        //add our Roboto-Regular.ttf font
+        //add our TASAOrbiterDisplay-Regular.otf font
         .add_font(&[imgui::FontSource::TtfData {
-            data: include_bytes!("../fonts/TASAOrbiterDisplay-Regular.otf"),
-            size_pixels: (16.0 * dpi_factor) as f32, // Scale font size based on DPI factor
-            config: Some(imgui::FontConfig {
-                rasterizer_multiply: 1.3,
-                oversample_h: 8,
-                oversample_v: 8,
-                glyph_ranges: imgui::FontGlyphRanges::default(),
-                ..imgui::FontConfig::default()
-            }),
-        }]);
+        data: include_bytes!("../fonts/InconsolataNerdFontMono-Regular.ttf"),
+        size_pixels: (16.5 * dpi_factor) as f32, // Scale font size based on DPI factor
+        config: Some(imgui::FontConfig {
+            rasterizer_multiply: 1.3,
+            oversample_h: 8,
+            oversample_v: 8,
+            glyph_ranges: imgui::FontGlyphRanges::default(),
+            ..imgui::FontConfig::default()
+        }),
+    }]),
+    };
 
     imgui_context.io_mut().font_global_scale = (1.0 / winit_platform.hidpi_factor()) as f32;
 
-    (winit_platform, imgui_context)
+    (winit_platform, imgui_context, dual_font_data)
 }
