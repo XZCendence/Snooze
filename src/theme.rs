@@ -26,7 +26,7 @@ pub fn push_style_custom(theme: &ImThemeBasicAccentBased){
         let _child_rounding = sys::igPushStyleVar_Float(sys::ImGuiStyleVar::from(7), platform_specific_window_rounding);
         let _frame_rounding = sys::igPushStyleVar_Float(sys::ImGuiStyleVar::from(12), 5.0);
         let _frame_border_size = sys::igPushStyleVar_Float(sys::ImGuiStyleVar::from(13), 1.0);
-        let _frame_padding = sys::igPushStyleVar_Vec2(sys::ImGuiStyleVar::from(11), sys::ImVec2 { x: 6.0, y: 4.0 });
+        let _frame_padding = sys::igPushStyleVar_Vec2(sys::ImGuiStyleVar::from(11), sys::ImVec2 { x: 4.0, y: 4.0 });
 
         // Colors
         let darkened_title_bg = [

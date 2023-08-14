@@ -1,9 +1,10 @@
-use imgui::{Condition, TabItem};
+use imgui::{Condition, sys, TabItem};
+use imgui::sys::ImVec2;
 use crate::docking::UiDocking;
 use crate::state::{GuiAppState, UiUtilState, DualFontData};
 
 // Draw a request window (we can have up to 4)
-fn draw_request_window(num: u8, ui: &imgui::Ui, state: &GuiAppState, font_data: &DualFontData) {
+fn draw_request_window(num: u8, ui: &imgui::Ui, state: &GuiAppState, font_data: &DualFontData, open: &mut bool) {
     let window_name = format!("Request {}", num);
     // if it's request 1, it should span the whole window
     let size = if num == 1 {
@@ -13,9 +14,9 @@ fn draw_request_window(num: u8, ui: &imgui::Ui, state: &GuiAppState, font_data: 
     };
     ui.window(&window_name)
         .size(size, Condition::FirstUseEver)
+        .opened(open)
         .build(|| {
             ui.columns(2, &window_name, true);
-
             ui.input_text("URL", &mut state.get_request_state_mut().url)
                 .build();
 
@@ -110,6 +111,20 @@ fn draw_request_window(num: u8, ui: &imgui::Ui, state: &GuiAppState, font_data: 
             options_h.pop();
             options_a.pop();
             options_b.pop();
+            ui.same_line();
+            let custom_n = ui.push_style_color(imgui::StyleColor::Button, [0.8, 0.8, 0.8, 0.7]); //normal
+            let custom_h = ui.push_style_color(imgui::StyleColor::ButtonHovered, [1.0, 1.0, 1.0, 0.7]); //hovered (slightly lighter)
+            let custom_a = ui.push_style_color(imgui::StyleColor::ButtonActive, [0.7, 0.7, 0.7, 0.7]); //active (slightly darker)
+            // border color should be the same as the hovered color
+            let custom_b = ui.push_style_color(imgui::StyleColor::Border, [1.0, 1.0, 1.0, 0.7]);
+            if ui.button("CUSTOM") {
+                println!("CUSTOM");
+            }
+            custom_n.pop();
+            custom_h.pop();
+            custom_a.pop();
+            custom_b.pop();
+
             let tab_bar = ui.tab_bar("Request Editor Tabs");
             TabItem::new("Headers")
                 .build(&ui, || {
@@ -121,10 +136,10 @@ fn draw_request_window(num: u8, ui: &imgui::Ui, state: &GuiAppState, font_data: 
                 .build(&ui, || {
                     let font = ui.push_font(font_data.font_beta);
                     let free_space = ui.content_region_avail();
-
-
-
-                            ui.input_text_multiline("Body", &mut state.get_request_state_mut().body, free_space)
+                    ui.spacing();
+                    ui.spacing();
+                    ui.spacing();
+                            ui.input_text_multiline(" ", &mut state.get_request_state_mut().body, [free_space[0]-6.0, free_space[1]-12.0])
                                 .allow_tab_input(true)
                                 .build();
 
@@ -139,6 +154,19 @@ fn draw_request_window(num: u8, ui: &imgui::Ui, state: &GuiAppState, font_data: 
             ui.next_column();
 
             ui.text("Response");
+            let resp_tab_bar = ui.tab_bar("Response Tabs");
+            TabItem::new("Response Headers")
+                .build(&ui, || {
+                    ui.text("Headers");
+                });
+            TabItem::new("Response Body")
+                .build(&ui, || {
+                    ui.text("Body");
+                });
+            TabItem::new("Raw Response")
+                .build(&ui, || {
+                    ui.text("Body");
+                });
         });
 }
 
@@ -183,7 +211,6 @@ fn draw_request_window(num: u8, ui: &imgui::Ui, state: &GuiAppState, font_data: 
                 });
         });
 
-    const MENU_BAR_HEIGHT: f32 = 22.0;
     ui.window("Main Window")
         .flags(flags)
         .position([0.0, 0.0], imgui::Condition::Always)
@@ -192,24 +219,24 @@ fn draw_request_window(num: u8, ui: &imgui::Ui, state: &GuiAppState, font_data: 
 
             // Create top-level docking area, needs to be made early (before docked windows)
             let ui_d = UiDocking {};
-            let space = ui_d.dockspace("MainDockArea");
 
-            //we want it do only dock the request 1 window once
+            unsafe {
+                let space = ui_d.dockspace("MainDockArea");
 
             if ui.frame_count() < 10 {
-                space.dock_window("Request 1");
+                space.dock_window("Request 1"); }
             }
 
-            draw_request_window(1, ui, one_state, font_data);
+            draw_request_window(1, ui, one_state, font_data, &mut true);
 
-            if (ui_util_state.request_2_open) {
-                draw_request_window(2, ui, two_state, font_data);
+            if ui_util_state.request_2_open {
+                draw_request_window(2, ui, two_state, font_data, &mut ui_util_state.request_2_open);
             }
-            if (ui_util_state.request_3_open) {
-                draw_request_window(3, ui, three_state, font_data);
+            if ui_util_state.request_3_open {
+                draw_request_window(3, ui, three_state, font_data, &mut ui_util_state.request_3_open);
             }
-            if (ui_util_state.request_4_open) {
-                draw_request_window(4, ui, four_state, font_data);
+            if ui_util_state.request_4_open {
+                draw_request_window(4, ui, four_state, font_data, &mut ui_util_state.request_4_open);
             }
 
         });

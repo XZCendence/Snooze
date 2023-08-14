@@ -1,5 +1,6 @@
 use imgui::{Direction, sys};
 use std::ffi::c_char;
+use imgui::sys::{igPushStyleVar_Vec2, ImVec2};
 
 //docking boilerplate
 
@@ -73,7 +74,7 @@ impl UiDocking {
     /// dockspace which can be used to, say, programatically split or
     /// dock windows into it
     #[doc(alias = "DockSpace")]
-    pub fn dockspace(&self, label: &str) -> DockNode {
+    pub unsafe fn dockspace(&self, label: &str) -> DockNode {
         let label = imgui::ImString::from(label.to_string());
         unsafe {
             let id = sys::igGetID_Str(label.as_ptr() as *const c_char);

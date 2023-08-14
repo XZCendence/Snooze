@@ -158,7 +158,7 @@ fn imgui_init(window: &Window) -> (WinitPlatform, imgui::Context, DualFontData){
             //add our Roboto-Regular.ttf font
             .add_font(&[imgui::FontSource::TtfData {
                 data: include_bytes!("../fonts/TASAOrbiterDisplay-Regular.otf"),
-                size_pixels: (16.5 * dpi_factor) as f32, // Scale font size based on DPI factor
+                size_pixels: (16.0 * dpi_factor) as f32, // Scale font size based on DPI factor
                 config: Some(imgui::FontConfig {
                     rasterizer_multiply: 1.3,
                     oversample_h: 8,
@@ -172,7 +172,7 @@ fn imgui_init(window: &Window) -> (WinitPlatform, imgui::Context, DualFontData){
         //add our TASAOrbiterDisplay-Regular.otf font
         .add_font(&[imgui::FontSource::TtfData {
         data: include_bytes!("../fonts/InconsolataNerdFontMono-Regular.ttf"),
-        size_pixels: (16.5 * dpi_factor) as f32, // Scale font size based on DPI factor
+        size_pixels: (16.0 * dpi_factor) as f32, // Scale font size based on DPI factor
         config: Some(imgui::FontConfig {
             rasterizer_multiply: 1.3,
             oversample_h: 8,
